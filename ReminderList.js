@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { View, FlatList, Text, StyleSheet, TouchableOpacity, AsyncStorage } from 'react-native';
+// import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 
 export default class ReminderList extends Component {
@@ -12,43 +12,44 @@ export default class ReminderList extends Component {
     }
     componentDidMount() {
         this.getData()
-        if(this.props.navigation.state.params === undefined){
-            return;
-        }
-        let task = this.props.navigation.state.params.tasks;
-        let allTasks = this.state.tasks;
-        allTasks.push(task);
-        this.setState({ tasks: allTasks });
+        // let task = this.props.navigation.state.params.tasks;
+        // let allTasks = this.state.tasks;
+        // allTasks.push(task);
+        // this.setState({ tasks: allTasks });
     }
     getData = async () => {
         try {
             const value = await AsyncStorage.getItem('tasks')
-            console.log('GETDATA' ,value)
+            console.log(value)
             if (value !== null) {
-                this.setState({ tasks: [JSON.parse(value)] })
+                this.setState({ tasks: JSON.parse(value) })
             }
         } catch (e) {
             alert(e)
         }
     }
     deleteTask = (i) => {
-        this.setState(
-            prevState => {
-                let tasks = prevState.tasks.slice();
-                tasks.splice(i, 1);
-                return { tasks: tasks };
-            },
-        );
+        let tasks = this.state.tasks;
+        if (i > -1) {
+            tasks.splice(i, 1);
+        }
+        this.setState({ tasks: tasks });
         AsyncStorage.setItem('tasks', JSON.stringify(this.state.tasks))
     };
     viewReminder = (data) => {
         this.props.navigation.navigate('Details', { info: data })
     }
-    editReminder = (data) => {
-        this.props.navigation.navigate('Reminder', { info: data })
+    editReminder = (index) => {
+        console.log(this.state.tasks)
+        tasks = [...this.state.tasks]
+        const commentIndex = this.state.tasks.findIndex((i)=> { i.index === index});
+        tasks[commentIndex] = index;
+        this.setState({tasks : index})
+        console.log(commentIndex)
+        // this.props.navigation.navigate('Reminder')
     }
     render() {
-        
+        if (this.state.tasks.length) {
             return (
                 <View style={styles.container}>
                     <Text style={styles.heading}>
@@ -102,6 +103,9 @@ export default class ReminderList extends Component {
                     />
                 </View>
             );
+        } else {
+            return (<View><Text>No data found</Text></View>);
+        }
 
     }
 }
