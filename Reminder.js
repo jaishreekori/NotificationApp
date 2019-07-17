@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, TimePickerAndroid, DatePickerAndroid, TextInput } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { Text, View, StyleSheet, TouchableOpacity, TimePickerAndroid, DatePickerAndroid, TextInput, AsyncStorage } from 'react-native';
+// import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
+const reminderArr = [];
 
 export default class Reminder extends Component {
     constructor() {
         super();
         this.setDate = this.setDate.bind(this);
         this.state = {
-            reminderArr: [],
             chosenDate: new Date(),
             tasks: [{
                 chosenAndroidTime: '00:00',
@@ -46,6 +46,7 @@ export default class Reminder extends Component {
                 is24Hour: false, // Will display '2 PM'
             });
             if (action !== TimePickerAndroid.dismissedAction) {
+                // Selected hour (0-23), minute (0-59)
                 const m = minute < 10 ? `0${minute}` : minute;
                 const h = hour < 10 ? `0${hour}` : hour;
                 console.log(`time: ${hour}:${minute}`);
@@ -60,34 +61,8 @@ export default class Reminder extends Component {
         this.setState({ text: text })
     }
     saveReminder = () => {
-        console.log("this.state.reminderArr " + this.state.reminderArr)
-        this.setState(prevState => ({
-            reminderArr: [...prevState.reminderArr, this.getReminder()]
-        }))
-        //  const tempArr = [...this.state.reminderArr];
-        //  tempArr =this.state.reminderArr;
-        //  tempArr.push(this.getReminder())
-        //  this.setState({reminderArr:tempArr})
-        this.storeData(this.state.reminderArr)
-        this.props.navigation.navigate('ReminderList')
-    }
-    componentDidMount() {
-        this.getData()
-    }
-    getData = async () => {
-        try {
-            const value = await AsyncStorage.getItem('tasks')
-            console.log("value " + [JSON.parse(value)])
-            if (value === undefined || value === null) {
-                this.storeData(this.state.reminderArr)
-            } else {
-                if (value.length > 0) {
-                    this.setState({ reminderArr: value })
-                }
-            }
-        } catch (e) {
-            alert(e)
-        }
+        reminderArr.push(this.getReminder())
+        this.storeData(reminderArr)
     }
     getReminder() {
         return (
@@ -100,35 +75,33 @@ export default class Reminder extends Component {
     }
     storeData = async (value) => {
         try {
+
             await AsyncStorage.setItem('tasks', JSON.stringify(value))
-            console.log(JSON.stringify(value))
-            // this.props.navigation.navigate('ReminderList');
+
+            this.props.navigation.navigate('ReminderList');
         } catch (e) {
+            // saving error
             console.log(e)
         }
     }
-    // async saveData() {
-    //     let task = this.getReminder();
-    //     try {
-    //         let localTasks = await AsyncStorage.getItem('tasks');
-    //         if (localTasks == null) {
-    //             let tasks = [];
-    //             this.props.navigation.navigate('ReminderList', { tasks: task })
-    //             console.log('test1',task)
-    //             // tasks.push(task);
-    //             this.storeData(tasks);
-    //         }
-    //         if (localTasks != null) {
-    //             let tasks = JSON.parse(localTasks);
-    //             // this.props.navigation.navigate('ReminderList', { tasks: task })
-    //             tasks.push(task);
-    //             console.log('test2',task)
-    //             this.storeData(tasks);
-    //         }
-    //     } catch (e) {
-    //         alert(e)
-    //     }
-    // }
+    async saveData() {
+        let task = this.getReminder();
+        try {
+            let localTasks = await AsyncStorage.getItem('tasks');
+            if(localTasks == null) {
+                let tasks = [];
+                tasks.push(task);
+                this.storeData(tasks);
+            } 
+            if(localTasks != null) {
+                let tasks = JSON.parse(localTasks);
+                tasks.push(task);
+                this.storeData(tasks);
+            } 
+        } catch (e) {
+            alert(e)
+        }
+    }
     render() {
         return (
             <View style={styles.container}>
@@ -149,16 +122,16 @@ export default class Reminder extends Component {
                     onChangeText={this.changeText}
                     value={this.state.text}
                 />
-                <TouchableOpacity style={{ height: 40, width: "40%", borderWidth: 2, backgroundColor: 'green', marginTop: 50, alignSelf: 'center' }}
+                {/* <TouchableOpacity style={{ height: 40, width: "40%", borderWidth: 2, backgroundColor: 'green', marginTop: 50, alignSelf: 'center' }}
                     onPress={this.saveReminder}>
                     <Text style={{ fontSize: 20, fontWeight: 'bold', margin: 10, alignContent: 'center' }}>Save Reminder</Text>
-                </TouchableOpacity>
-                {/* <TouchableOpacity style={{ height: 40, width: "40%", borderWidth: 2, backgroundColor: 'green', marginTop: 50, alignSelf: 'center' }}
+                </TouchableOpacity> */}
+                <TouchableOpacity style={{ height: 40, width: "40%", borderWidth: 2, backgroundColor: 'green', marginTop: 50, alignSelf: 'center' }}
                     onPress={() => {
                         this.saveData()
                     }}>
                     <Text style={{ fontSize: 19, fontWeight: 'bold', margin: 10, alignContent: 'center' }}>Save Reminder</Text>
-                </TouchableOpacity> */}
+                </TouchableOpacity>
             </View>
         );
     }
