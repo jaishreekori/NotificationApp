@@ -1,51 +1,90 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, Image, Button } from 'react-native';
-import { ImagePicker } from "react-native-image-picker";
+import { StyleSheet, Text, View, PixelRatio, TouchableOpacity, Image } from 'react-native'
+import ImagePicker from 'react-native-image-picker';
+import { SketchCanvas } from '@terrylinla/react-native-sketch-canvas';
 
 export default class App extends Component {
   state = {
-    pickedImage: null
+    ImageSource: null,
+    videoSource: null,
+  };
+  handleLongPress = () => {
+    alert("Long Pressed")
   }
+  selectPhotoTapped() {
+    const options = {
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: {
+        skipBackup: true
+      }
+    };
 
-  reset = () => {
-    this.setState({
-      pickedImage: null
-    });
-  }
-
-  pickImageHandler = () => {
-    ImagePicker.showImagePicker({ title: "Pick an Image", maxWidth: 800, maxHeight: 600 }, res => {
-      if (res.didCancel) {
-        console.log("User cancelled!");
-      } else if (res.error) {
-        console.log("Error", res.error);
-      } else {
+    ImagePicker.showImagePicker(options, (response) => {
+      console.log('Response = ', response);
+      if (response.didCancel) {
+        console.log('User cancelled photo picker');
+      }
+      else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      }
+      else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      }
+      else {
+        let source = { uri: response.uri };
         this.setState({
-          pickedImage: { uri: res.uri }
+          ImageSource: source
         });
-
       }
     });
   }
 
-  resetHandler = () => {
-    this.reset();
-  }
+  // selectVideoTapped() {
+  //   const options = {
+  //     title: 'Video Picker',
+  //     takePhotoButtonTitle: 'Take Video...',
+  //     mediaType: 'video',
+  //     videoQuality: 'medium',
+  //   };
+
+  //   ImagePicker.showImagePicker(options, response => {
+  //     console.log('Response = ', response);
+
+  //     if (response.didCancel) {
+  //       console.log('User cancelled video picker');
+  //     } else if (response.error) {
+  //       console.log('ImagePicker Error: ', response.error);
+  //     } else if (response.customButton) {
+  //       console.log('User tapped custom button: ', response.customButton);
+  //     } else {
+  //       this.setState({
+  //         videoSource: response.uri,
+  //       });
+  //     }
+  //   });
+  // }
 
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.textStyle}>Pick Image From Camera and Gallery </Text>
-        <View style={styles.placeholder}>
-          <Image source={this.state.pickedImage} style={styles.previewImage} />
-        </View>
-        <View style={styles.button}>
-
-          <Button title="Pick Image" onPress={this.pickImageHandler} />
-
-          <Button title="Reset" onPress={this.resetHandler} />
-
-        </View>
+        <TouchableOpacity onPress={() => this.selectPhotoTapped()}
+          style={{ marginBottom: 40 }}
+          onLongPress={() => this.handleLongPress()} activeOpacity={0.6}>
+          <View style={styles.ImageContainer}>
+            {this.state.ImageSource === null ? <Text style={{ fontSize: 20 }}>Select a Photo</Text> :
+              <Image style={styles.ImageContainer} source={this.state.ImageSource} />
+            }
+          </View>
+        </TouchableOpacity>
+        {/* <TouchableOpacity onPress={() => this.selectVideoTapped()}>
+          <View style={styles.ImageContainer}>
+            {this.state.videoSource === null ? <Text style={{ fontSize: 20 }}>Select a video</Text> :
+              <Image style={styles.ImageContainer} source={this.state.videoSource} />
+            }
+          </View>
+        </TouchableOpacity> */}
       </View>
     );
   }
@@ -53,31 +92,20 @@ export default class App extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center"
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF8E1'
   },
-  textStyle: {
-    fontWeight: "bold",
-    fontSize: 30,
-    textAlign: "center",
-    color: "red",
-    marginTop: 10
+  ImageContainer: {
+    borderRadius: 10,
+    width: 250,
+    height: 250,
+    borderColor: '#9B9B9B',
+    borderWidth: 1 / PixelRatio.get(),
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#CDDC39',
   },
-  placeholder: {
-    borderWidth: 1,
-    borderColor: "black",
-    backgroundColor: "#eee",
-    width: "70%",
-    height: 280,
-    marginTop: 50,
-  },
-  button: {
-    width: "80%",
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-around"
-  },
-  previewImage: {
-    width: "100%",
-    height: "100%"
-  }
 });
+
