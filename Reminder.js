@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, TimePickerAndroid, DatePickerAndroid, TextInput, AsyncStorage } from 'react-native';
-// import AsyncStorage from '@react-native-community/async-storage';
+import { Text, View, StyleSheet, TouchableOpacity, TimePickerAndroid, DatePickerAndroid, TextInput } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 const reminderArr = [];
 
@@ -75,9 +75,7 @@ export default class Reminder extends Component {
     }
     storeData = async (value) => {
         try {
-
             await AsyncStorage.setItem('tasks', JSON.stringify(value))
-
             this.props.navigation.navigate('ReminderList');
         } catch (e) {
             // saving error
@@ -88,21 +86,24 @@ export default class Reminder extends Component {
         let task = this.getReminder();
         try {
             let localTasks = await AsyncStorage.getItem('tasks');
-            if(localTasks == null) {
+            if (localTasks == null) {
                 let tasks = [];
                 tasks.push(task);
                 this.storeData(tasks);
-            } 
-            if(localTasks != null) {
+            }
+            if (localTasks != null) {
                 let tasks = JSON.parse(localTasks);
                 tasks.push(task);
                 this.storeData(tasks);
-            } 
+            }
         } catch (e) {
             alert(e)
         }
     }
     render() {
+        const { navigation } = this.props;
+        const data = navigation.getParam('data', 'no-data')
+        console.log('data' + JSON.stringify(data))
         return (
             <View style={styles.container}>
                 <Text style={styles.textView}>Reminder Date:</Text>
