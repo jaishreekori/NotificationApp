@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, FlatList, Text, StyleSheet, TouchableOpacity, AsyncStorage } from 'react-native';
-// import AsyncStorage from '@react-native-community/async-storage';
+import { View, FlatList, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import { StackActions, NavigationActions } from 'react-navigation';
 
 export default class ReminderList extends Component {
@@ -12,7 +12,7 @@ export default class ReminderList extends Component {
     }
     componentDidMount() {
         this.getData()
-        // let task = this.props.navigation.state.params.tasks;
+        //  let task = this.props.navigation.state.params.tasks;
         // let allTasks = this.state.tasks;
         // allTasks.push(task);
         // this.setState({ tasks: allTasks });
@@ -39,14 +39,15 @@ export default class ReminderList extends Component {
     viewReminder = (data) => {
         this.props.navigation.navigate('Details', { info: data })
     }
-    editReminder = (index) => {
-        console.log(this.state.tasks)
-        tasks = [...this.state.tasks]
-        const commentIndex = this.state.tasks.findIndex((i)=> { i.index === index});
-        tasks[commentIndex] = index;
-        this.setState({tasks : index})
-        console.log(commentIndex)
-        // this.props.navigation.navigate('Reminder')
+    editReminder = (item) => {
+        // console.log(this.state.tasks)
+        // tasks = [...this.state.tasks]
+        // const commentIndex = this.state.tasks.findIndex((i)=> { i.index === index});
+        // tasks[commentIndex] = index;
+        // this.setState({tasks : index})
+        // console.log(index)
+        this.props.navigation.navigate('Reminder', { data: item })
+        console.log(item)
     }
     render() {
         if (this.state.tasks.length) {
