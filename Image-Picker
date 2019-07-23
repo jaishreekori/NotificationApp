@@ -1,0 +1,82 @@
+import React, { Component } from 'react';
+import { StyleSheet, Text, View, PixelRatio, TouchableOpacity, Image } from 'react-native'
+import ImagePicker from 'react-native-image-picker';
+import ImageViewer from 'react-native-image-zoom-viewer';
+
+export default class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      ImageSource: null,
+    };
+  }
+  handleLongPress = () => {
+    alert("Long Pressed")
+  }
+  selectPhotoTapped() {
+    const options = {
+      quality: 1.0,
+      maxWidth: 500,
+      maxHeight: 500,
+      storageOptions: {
+        skipBackup: true
+      }
+    };
+
+    ImagePicker.showImagePicker(options, (response) => {
+      console.log('Response = ', response);
+      if (response.didCancel) {
+        console.log('User cancelled photo picker');
+      }
+      else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      }
+      else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      }
+      else {
+        let source = [{ uri: response.uri }];
+        this.setState({
+          ImageSource: source
+        });
+      }
+    });
+  }
+  render() {
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity onPress={() => this.selectPhotoTapped()}
+          style={{ marginBottom: 40 }}
+          onLongPress={() => this.handleLongPress()} activeOpacity={0.6}>
+          <View style={styles.ImageContainer}>
+            {this.state.ImageSource === null ? <Text style={{ fontSize: 20 }}>Select a Photo</Text> :
+              <Image style={styles.ImageContainer} source={this.state.ImageSource} />
+            }
+          </View>
+          {/* <ImageViewer imageUrls={images}/> */}
+        </TouchableOpacity>
+      </View>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFF8E1'
+  },
+  ImageContainer: {
+    borderRadius: 10,
+    width: 250,
+    height: 250,
+    borderColor: '#9B9B9B',
+    borderWidth: 1 / PixelRatio.get(),
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#CDDC39',
+  },
+});
+
